@@ -1,520 +1,137 @@
-const EXERCISES = [
-  // ─── WEIGHTLIFTING ───────────────────────────────────────────────────────────
-  {
-    id: "barbell-squat", name: "Barbell Back Squat", category: "weightlifting",
-    mode: ["gym"], muscles: { primary: ["quads","glutes"], secondary: ["hamstrings","core","lower-back"] },
-    equipment: ["barbell","rack"], difficulty: 3,
-    description: "Place barbell on upper traps, squat to parallel or below.",
-    sets: "3-5", reps: "5-8", restSec: 180,
-    injuryModifications: {
-      knee: { swap: "leg-press", note: "Avoid deep knee flexion" },
-      back: { swap: "goblet-squat", note: "Use goblet squat to reduce spinal load" },
-      shoulder: { swap: "front-squat", note: "Switch to front squat or goblet" }
-    }
-  },
-  {
-    id: "deadlift", name: "Conventional Deadlift", category: "weightlifting",
-    mode: ["gym"], muscles: { primary: ["hamstrings","glutes","lower-back"], secondary: ["traps","lats","core","quads"] },
-    equipment: ["barbell"], difficulty: 4,
-    description: "Hip-hinge pull from floor to lockout. Keep bar close to body.",
-    sets: "3-5", reps: "3-6", restSec: 240,
-    injuryModifications: {
-      back: { swap: "romanian-deadlift", note: "Use RDL with lighter load, maintain neutral spine" },
-      knee: { swap: "trap-bar-deadlift", note: "Trap bar reduces knee demand" },
-      hamstring: { swap: "hip-thrust", note: "Reduce hamstring tension with hip thrusts" }
-    }
-  },
-  {
-    id: "bench-press", name: "Barbell Bench Press", category: "weightlifting",
-    mode: ["gym"], muscles: { primary: ["chest"], secondary: ["triceps","front-delts"] },
-    equipment: ["barbell","bench"], difficulty: 3,
-    description: "Lower bar to mid-chest, press to lockout. Arch naturally.",
-    sets: "3-5", reps: "5-8", restSec: 180,
-    injuryModifications: {
-      shoulder: { swap: "db-floor-press", note: "Dumbbell floor press limits shoulder ROM" },
-      elbow: { swap: "pushup", note: "Reduce load with bodyweight pushups" },
-      wrist: { swap: "db-bench-press", note: "Dumbbells allow neutral wrist position" }
-    }
-  },
-  {
-    id: "overhead-press", name: "Overhead Press", category: "weightlifting",
-    mode: ["gym"], muscles: { primary: ["front-delts","side-delts"], secondary: ["triceps","upper-traps","core"] },
-    equipment: ["barbell"], difficulty: 3,
-    description: "Press bar from shoulders to overhead. Keep core tight.",
-    sets: "3-4", reps: "5-8", restSec: 180,
-    injuryModifications: {
-      shoulder: { swap: "landmine-press", note: "Landmine press is shoulder-friendly at an angle" },
-      neck: { swap: "db-lateral-raise", note: "Isolation work only" },
-      back: { swap: "seated-db-press", note: "Seated reduces spinal compressive load" }
-    }
-  },
-  {
-    id: "barbell-row", name: "Barbell Row", category: "weightlifting",
-    mode: ["gym"], muscles: { primary: ["lats","rhomboids"], secondary: ["biceps","rear-delts","lower-back"] },
-    equipment: ["barbell"], difficulty: 3,
-    description: "Hinge at hip, row bar to lower rib cage. Squeeze shoulder blades.",
-    sets: "3-4", reps: "6-10", restSec: 120,
-    injuryModifications: {
-      back: { swap: "chest-supported-row", note: "Chest support eliminates lower back stress" },
-      elbow: { swap: "cable-row", note: "Cable allows consistent tension without elbow stress" }
-    }
-  },
-  {
-    id: "romanian-deadlift", name: "Romanian Deadlift", category: "weightlifting",
-    mode: ["gym"], muscles: { primary: ["hamstrings","glutes"], secondary: ["lower-back","core"] },
-    equipment: ["barbell","dumbbells"], difficulty: 2,
-    description: "Hinge at hips, lower weight with soft knees, feel hamstring stretch.",
-    sets: "3-4", reps: "8-12", restSec: 120,
-    injuryModifications: {
-      hamstring: { swap: "hip-thrust", note: "Avoid hamstring stretch; hip thrust safer" },
-      back: { swap: "single-leg-rdl", note: "Less spinal load with single leg variant" }
-    }
-  },
-  {
-    id: "goblet-squat", name: "Goblet Squat", category: "weightlifting",
-    mode: ["gym","home"], muscles: { primary: ["quads","glutes"], secondary: ["core","upper-back"] },
-    equipment: ["dumbbell","kettlebell"], difficulty: 1,
-    description: "Hold weight at chest, squat deep. Great for beginners.",
-    sets: "3", reps: "10-15", restSec: 90,
-    injuryModifications: {
-      knee: { note: "Limit depth to pain-free range" },
-      back: { note: "Goblet position is inherently back-friendly" }
-    }
-  },
-  {
-    id: "hip-thrust", name: "Barbell Hip Thrust", category: "weightlifting",
-    mode: ["gym"], muscles: { primary: ["glutes"], secondary: ["hamstrings","core"] },
-    equipment: ["barbell","bench"], difficulty: 2,
-    description: "Drive hips up to full extension against barbell. Squeeze glutes at top.",
-    sets: "3-4", reps: "8-15", restSec: 90,
-    injuryModifications: {
-      back: { note: "Excellent low-back-friendly glute exercise" },
-      knee: { note: "Minimal knee stress" }
-    }
-  },
-  // ─── BODYWEIGHT ───────────────────────────────────────────────────────────────
-  {
-    id: "pushup", name: "Push-Up", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["chest"], secondary: ["triceps","front-delts","core"] },
-    equipment: [], difficulty: 1,
-    description: "Plank position, lower chest to floor, press up. Keep body rigid.",
-    sets: "3", reps: "10-20", restSec: 60,
-    injuryModifications: {
-      wrist: { swap: "fist-pushup", note: "Pushup on fists for neutral wrist" },
-      shoulder: { swap: "incline-pushup", note: "Incline reduces load and shoulder ROM" },
-      elbow: { note: "Reduce range of motion, slow the movement" }
-    }
-  },
-  {
-    id: "pullup", name: "Pull-Up", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["lats"], secondary: ["biceps","rear-delts","core"] },
-    equipment: ["pullup-bar"], difficulty: 3,
-    description: "Hang from bar, pull chest to bar. Full extension at bottom.",
-    sets: "3-4", reps: "5-12", restSec: 90,
-    injuryModifications: {
-      shoulder: { swap: "band-assisted-pullup", note: "Use band for assistance and reduced load" },
-      elbow: { swap: "inverted-row", note: "Inverted row reduces elbow flexion load" },
-      wrist: { note: "Use neutral grip if possible" }
-    }
-  },
-  {
-    id: "dip", name: "Tricep Dip", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["triceps","chest"], secondary: ["front-delts"] },
-    equipment: ["parallel-bars","chair"], difficulty: 2,
-    description: "Lower body between bars or on chair edge, press up.",
-    sets: "3", reps: "8-15", restSec: 90,
-    injuryModifications: {
-      shoulder: { swap: "diamond-pushup", note: "Diamond pushup reduces shoulder impingement risk" },
-      elbow: { swap: "tricep-pushdown", note: "Cable pushdown with less bodyweight load" }
-    }
-  },
-  {
-    id: "bodyweight-squat", name: "Bodyweight Squat", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["quads","glutes"], secondary: ["hamstrings","core"] },
-    equipment: [], difficulty: 1,
-    description: "Feet shoulder-width, squat to parallel, stand tall.",
-    sets: "3", reps: "15-25", restSec: 60,
-    injuryModifications: {
-      knee: { swap: "wall-sit", note: "Wall sit is isometric, less knee stress" },
-      back: { note: "Keep chest tall, avoid rounding" }
-    }
-  },
-  {
-    id: "lunge", name: "Reverse Lunge", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["quads","glutes"], secondary: ["hamstrings","core"] },
-    equipment: [], difficulty: 1,
-    description: "Step back into lunge, front knee over ankle. Alternate legs.",
-    sets: "3", reps: "10-12 each", restSec: 60,
-    injuryModifications: {
-      knee: { swap: "glute-bridge", note: "Glute bridges avoid knee flexion" },
-      hip: { note: "Reduce step depth" }
-    }
-  },
-  {
-    id: "glute-bridge", name: "Glute Bridge", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["glutes","hamstrings"], secondary: ["core","lower-back"] },
-    equipment: [], difficulty: 1,
-    description: "Lie on back, drive hips up, squeeze glutes at top.",
-    sets: "3", reps: "15-20", restSec: 60,
-    injuryModifications: {
-      back: { note: "Excellent for back rehabilitation" },
-      knee: { note: "Low knee stress exercise" }
-    }
-  },
-  {
-    id: "plank", name: "Plank", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["core"], secondary: ["shoulders","glutes","quads"] },
-    equipment: [], difficulty: 1,
-    description: "Forearm plank. Hold rigid position. Don't let hips sag or pike.",
-    sets: "3", reps: "30-60s", restSec: 60,
-    injuryModifications: {
-      shoulder: { swap: "dead-bug", note: "Dead bug trains core without shoulder load" },
-      back: { swap: "bird-dog", note: "Bird dog is gentle on the spine" },
-      wrist: { note: "Use forearm plank only" }
-    }
-  },
-  {
-    id: "mountain-climber", name: "Mountain Climber", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["core"], secondary: ["shoulders","hip-flexors","quads"] },
-    equipment: [], difficulty: 2,
-    description: "From plank, drive knees alternately toward chest at pace.",
-    sets: "3", reps: "30-45s", restSec: 60,
-    injuryModifications: {
-      shoulder: { swap: "plank", note: "Static plank removes dynamic shoulder stress" },
-      knee: { swap: "dead-bug", note: "Dead bug avoids knee compression" }
-    }
-  },
-  {
-    id: "dead-bug", name: "Dead Bug", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["core"], secondary: ["hip-flexors"] },
-    equipment: [], difficulty: 1,
-    description: "On back, extend opposite arm/leg while keeping low back flat.",
-    sets: "3", reps: "8-10 each side", restSec: 60,
-    injuryModifications: {
-      back: { note: "One of the safest core exercises for back issues" }
-    }
-  },
-  {
-    id: "bird-dog", name: "Bird Dog", category: "bodyweight",
-    mode: ["home","gym"], muscles: { primary: ["core","lower-back"], secondary: ["glutes","shoulders"] },
-    equipment: [], difficulty: 1,
-    description: "On all fours, extend opposite arm and leg. Hold 2-3s.",
-    sets: "3", reps: "8-10 each side", restSec: 60,
-    injuryModifications: {
-      back: { note: "Excellent for back rehabilitation and core stability" }
-    }
-  },
-  // ─── SUSPENSION TRAINING ──────────────────────────────────────────────────────
-  {
-    id: "trx-row", name: "TRX Row", category: "suspension",
-    mode: ["home","gym"], muscles: { primary: ["lats","rhomboids"], secondary: ["biceps","rear-delts","core"] },
-    equipment: ["trx"], difficulty: 1,
-    description: "Lean back holding TRX handles, row body up. Adjust angle for intensity.",
-    sets: "3", reps: "10-15", restSec: 75,
-    injuryModifications: {
-      back: { note: "Reduce lean angle to lower load" },
-      elbow: { note: "Adjust grip to neutral" }
-    }
-  },
-  {
-    id: "trx-pushup", name: "TRX Push-Up", category: "suspension",
-    mode: ["home","gym"], muscles: { primary: ["chest"], secondary: ["triceps","core","stabilizers"] },
-    equipment: ["trx"], difficulty: 2,
-    description: "Feet in TRX, body in plank, perform push-up. Instability increases core demand.",
-    sets: "3", reps: "8-15", restSec: 75,
-    injuryModifications: {
-      shoulder: { swap: "trx-row", note: "Rows are more shoulder-friendly" },
-      wrist: { note: "Adjust handle angle for neutral wrist" }
-    }
-  },
-  {
-    id: "trx-squat", name: "TRX Squat", category: "suspension",
-    mode: ["home","gym"], muscles: { primary: ["quads","glutes"], secondary: ["core","hamstrings"] },
-    equipment: ["trx"], difficulty: 1,
-    description: "Hold TRX, squat deep using handles for balance. Great for mobility.",
-    sets: "3", reps: "12-20", restSec: 60,
-    injuryModifications: {
-      knee: { note: "Use handles to offload and control depth" },
-      back: { note: "Upright torso reduces back stress" }
-    }
-  },
-  {
-    id: "trx-lunge", name: "TRX Lunge", category: "suspension",
-    mode: ["home","gym"], muscles: { primary: ["quads","glutes"], secondary: ["hamstrings","core"] },
-    equipment: ["trx"], difficulty: 2,
-    description: "One foot in TRX strap behind you, lunge on front leg.",
-    sets: "3", reps: "10-12 each", restSec: 75,
-    injuryModifications: {
-      knee: { swap: "trx-squat", note: "Bilateral squat is safer for knee issues" }
-    }
-  },
-  {
-    id: "trx-plank", name: "TRX Plank", category: "suspension",
-    mode: ["home","gym"], muscles: { primary: ["core"], secondary: ["shoulders","glutes"] },
-    equipment: ["trx"], difficulty: 2,
-    description: "Feet in straps, hold plank position. Instability intensifies core challenge.",
-    sets: "3", reps: "20-45s", restSec: 60,
-    injuryModifications: {
-      shoulder: { swap: "plank", note: "Floor plank removes instability overhead load" }
-    }
-  },
-  {
-    id: "trx-hamstring-curl", name: "TRX Hamstring Curl", category: "suspension",
-    mode: ["home","gym"], muscles: { primary: ["hamstrings","glutes"], secondary: ["core","lower-back"] },
-    equipment: ["trx"], difficulty: 2,
-    description: "Heels in straps, bridge up, curl heels toward glutes.",
-    sets: "3", reps: "10-15", restSec: 75,
-    injuryModifications: {
-      hamstring: { note: "Reduce range of motion during recovery" },
-      back: { note: "Excellent low-back-friendly hamstring exercise" }
-    }
-  },
-  // ─── MOBILITY ─────────────────────────────────────────────────────────────────
-  {
-    id: "hip-flexor-stretch", name: "Kneeling Hip Flexor Stretch", category: "mobility",
-    mode: ["home","gym"], muscles: { primary: ["hip-flexors"], secondary: ["quads"] },
-    equipment: [], difficulty: 1,
-    description: "Half-kneeling, drive hip forward. Hold 30-60s each side.",
-    sets: "2-3", reps: "30-60s each", restSec: 30,
-    injuryModifications: {
-      knee: { note: "Place pad under knee" },
-      hip: { note: "Reduce forward drive, stay in pain-free range" }
-    }
-  },
-  {
-    id: "thoracic-rotation", name: "Thoracic Rotation", category: "mobility",
-    mode: ["home","gym"], muscles: { primary: ["thoracic-spine","obliques"], secondary: ["lats"] },
-    equipment: [], difficulty: 1,
-    description: "Side-lying, rotate top arm open toward floor. 10 reps each side.",
-    sets: "2-3", reps: "10-12 each", restSec: 30,
-    injuryModifications: {
-      back: { note: "Essential for back rehab — restores mobility safely" },
-      shoulder: { note: "Reduce rotation if shoulder is involved" }
-    }
-  },
-  {
-    id: "world-greatest-stretch", name: "World's Greatest Stretch", category: "mobility",
-    mode: ["home","gym"], muscles: { primary: ["hip-flexors","thoracic-spine"], secondary: ["groin","hamstrings","glutes"] },
-    equipment: [], difficulty: 1,
-    description: "Lunge + thoracic rotation + reach. Full body mobility in one move.",
-    sets: "2", reps: "5-8 each side", restSec: 30,
-    injuryModifications: {
-      knee: { note: "Keep lunge shallow" },
-      back: { note: "Move slowly, avoid any painful range" }
-    }
-  },
-  {
-    id: "cat-cow", name: "Cat-Cow", category: "mobility",
-    mode: ["home","gym"], muscles: { primary: ["spine","core"], secondary: ["neck"] },
-    equipment: [], difficulty: 1,
-    description: "All-fours spinal flexion/extension. Move slowly, breathe with each rep.",
-    sets: "2", reps: "10-15", restSec: 30,
-    injuryModifications: {
-      back: { note: "Gentle spinal mobility — excellent for back pain" },
-      neck: { note: "Limit cervical movement" }
-    }
-  },
-  {
-    id: "pigeon-pose", name: "Pigeon Pose", category: "mobility",
-    mode: ["home","gym"], muscles: { primary: ["glutes","piriformis","hip-flexors"], secondary: ["groin"] },
-    equipment: [], difficulty: 1,
-    description: "From plank, bring front shin horizontal, lower hips. Hold 45-90s.",
-    sets: "2", reps: "45-90s each", restSec: 30,
-    injuryModifications: {
-      knee: { swap: "supine-figure-4", note: "Supine figure-4 removes knee stress" },
-      hip: { note: "Use yoga block under hip for support" }
-    }
-  },
-  {
-    id: "supine-figure-4", name: "Supine Figure-4", category: "mobility",
-    mode: ["home","gym"], muscles: { primary: ["glutes","piriformis"], secondary: ["hip-external-rotators"] },
-    equipment: [], difficulty: 1,
-    description: "On back, cross ankle over opposite knee, pull legs toward chest.",
-    sets: "2", reps: "45-90s each", restSec: 30,
-    injuryModifications: {
-      knee: { note: "Safest glute stretch for knee issues" },
-      hip: { note: "Control depth by changing leg angle" }
-    }
-  },
-  {
-    id: "doorway-chest-stretch", name: "Doorway Chest Stretch", category: "mobility",
-    mode: ["home","gym"], muscles: { primary: ["chest","front-delts"], secondary: ["biceps"] },
-    equipment: [], difficulty: 1,
-    description: "Arms at 90° in doorway, lean forward gently. Hold 30s.",
-    sets: "2", reps: "30-45s", restSec: 30,
-    injuryModifications: {
-      shoulder: { note: "Reduce arm angle if painful — don't push range" }
-    }
-  },
-  {
-    id: "ankle-circles", name: "Ankle Circles & Alphabet", category: "mobility",
-    mode: ["home","gym"], muscles: { primary: ["ankles"], secondary: ["calves","tibialis"] },
-    equipment: [], difficulty: 1,
-    description: "Rotate ankles in full circles, then trace alphabet. Both feet.",
-    sets: "2", reps: "10 each direction", restSec: 30,
-    injuryModifications: {
-      ankle: { note: "Core rehab for ankle sprains" }
-    }
-  },
-  // ─── CARDIO ───────────────────────────────────────────────────────────────────
-  {
-    id: "jumping-jacks", name: "Jumping Jacks", category: "cardio",
-    mode: ["home","gym"], muscles: { primary: ["full-body"], secondary: [] },
-    equipment: [], difficulty: 1,
-    description: "Classic full-body cardio warmup. Land softly.",
-    sets: "3", reps: "30-60s", restSec: 30,
-    injuryModifications: {
-      knee: { swap: "step-jack", note: "Step out side to side instead of jumping" },
-      ankle: { swap: "march-in-place", note: "March in place to keep heart rate up" }
-    }
-  },
-  {
-    id: "burpee", name: "Burpee", category: "cardio",
-    mode: ["home","gym"], muscles: { primary: ["full-body"], secondary: [] },
-    equipment: [], difficulty: 3,
-    description: "Squat thrust to plank, pushup, jump. High-intensity full body.",
-    sets: "3", reps: "10-15", restSec: 90,
-    injuryModifications: {
-      knee: { swap: "inchworm", note: "Inchworm is low-impact alternative" },
-      back: { swap: "jumping-jacks", note: "Avoid spinal flexion under fatigue" },
-      shoulder: { swap: "squat-jump", note: "Remove upper body component" }
-    }
-  },
-  {
-    id: "jump-rope", name: "Jump Rope", category: "cardio",
-    mode: ["home","gym"], muscles: { primary: ["calves","shoulders"], secondary: ["core","full-body"] },
-    equipment: ["jump-rope"], difficulty: 2,
-    description: "Jump rope at moderate pace. Great low-equipment cardio.",
-    sets: "5", reps: "60s on / 30s off", restSec: 30,
-    injuryModifications: {
-      ankle: { swap: "march-in-place", note: "March with high knees instead" },
-      knee: { swap: "row-machine", note: "Low-impact rowing if available" },
-      shoulder: { note: "Use handles only, reduce shoulder rotation" }
-    }
-  },
-  {
-    id: "inchworm", name: "Inchworm", category: "cardio",
-    mode: ["home","gym"], muscles: { primary: ["hamstrings","shoulders","core"], secondary: ["chest"] },
-    equipment: [], difficulty: 1,
-    description: "Hinge forward, walk hands to plank, walk back. Slow and controlled.",
-    sets: "3", reps: "8-12", restSec: 60,
-    injuryModifications: {
-      back: { note: "Gentle warming for back, move slowly" },
-      hamstring: { note: "Bend knees as needed to maintain comfort" }
-    }
-  },
-  {
-    id: "high-knees", name: "High Knees", category: "cardio",
-    mode: ["home","gym"], muscles: { primary: ["hip-flexors","quads"], secondary: ["core","calves"] },
-    equipment: [], difficulty: 2,
-    description: "Run in place driving knees to hip height. Stay on toes.",
-    sets: "3", reps: "30-45s", restSec: 60,
-    injuryModifications: {
-      knee: { swap: "march-in-place", note: "Marching keeps heart rate without impact" },
-      hip: { note: "Reduce knee height to pain-free range" }
-    }
-  }
+const SPLITS={ppl:{id:"ppl",name:"Push / Pull / Legs",days:6,schedule:["push","pull","legs","push","pull","legs"],dayLabels:{push:"Push Day",pull:"Pull Day",legs:"Leg Day"},description:"Classic 6-day split targeting push, pull, and leg muscles on alternating days."},bro:{id:"bro",name:"Chest & Tri / Back & Bi / Shoulders & Legs",days:6,schedule:["chest-tri","back-bi","shoulders-legs","chest-tri","back-bi","shoulders-legs"],dayLabels:{"chest-tri":"Chest & Triceps","back-bi":"Back & Biceps","shoulders-legs":"Shoulders & Legs"},description:"Bodybuilder split pairing synergistic muscle groups."},ul:{id:"ul",name:"Upper / Lower",days:4,schedule:["upper","lower","upper","lower"],dayLabels:{upper:"Upper Body",lower:"Lower Body"},description:"4-day split alternating upper and lower body focus."},fb:{id:"fb",name:"Full Body",days:3,schedule:["full","full","full"],dayLabels:{full:"Full Body"},description:"3-day full body training — great for beginners or busy schedules."}};
+
+const MUSCLE_GROUPS={"chest":{label:"Chest"},"quads":{label:"Quadriceps"},"hamstrings":{label:"Hamstrings"},"glutes":{label:"Glutes"},"lats":{label:"Latissimus Dorsi"},"rhomboids":{label:"Rhomboids"},"lower-back":{label:"Lower Back"},"core":{label:"Core / Abs"},"triceps":{label:"Triceps"},"biceps":{label:"Biceps"},"front-delts":{label:"Front Deltoids"},"side-delts":{label:"Side Deltoids"},"rear-delts":{label:"Rear Deltoids"},"traps":{label:"Trapezius"},"upper-traps":{label:"Upper Traps"},"calves":{label:"Calves"},"hip-flexors":{label:"Hip Flexors"},"thoracic-spine":{label:"Thoracic Spine"},"spine":{label:"Spine"},"full-body":{label:"Full Body"},"shoulders":{label:"Shoulders"},"groin":{label:"Groin / Adductors"},"ankles":{label:"Ankles"},"stabilizers":{label:"Stabilizers"},"obliques":{label:"Obliques"},"forearms":{label:"Forearms"},"serratus":{label:"Serratus Anterior"},"piriformis":{label:"Piriformis"}};
+
+const EXERCISES=[
+  // CHEST
+  {id:"bench-press",name:"Barbell Bench Press",category:"weightlifting",mode:["gym"],muscles:{primary:["chest"],secondary:["triceps","front-delts"]},equipment:["barbell","bench"],difficulty:3,splitTags:["push","chest-tri","upper","full"],description:"Lower bar to mid-chest, press to lockout. Arch naturally, feet flat.",sets:"3-5",reps:"5-8",restSec:180,injuryModifications:{shoulder:{swap:"db-bench-press",note:"Dumbbells allow more natural shoulder path"},elbow:{swap:"pushup",note:"Reduce load with bodyweight"},wrist:{swap:"db-bench-press",note:"Dumbbells allow neutral wrist"}}},
+  {id:"db-bench-press",name:"Dumbbell Bench Press",category:"weightlifting",mode:["gym","home"],muscles:{primary:["chest"],secondary:["triceps","front-delts","stabilizers"]},equipment:["dumbbells","bench"],difficulty:2,splitTags:["push","chest-tri","upper","full"],description:"Press dumbbells from chest level to lockout. Greater ROM than barbell.",sets:"3-4",reps:"8-12",restSec:120,injuryModifications:{shoulder:{note:"Keep elbows at 45° from torso"},wrist:{note:"Neutral grip reduces wrist stress"}}},
+  {id:"incline-bench-press",name:"Incline Barbell Press",category:"weightlifting",mode:["gym"],muscles:{primary:["chest"],secondary:["front-delts","triceps"]},equipment:["barbell","bench"],difficulty:3,splitTags:["push","chest-tri","upper"],description:"45° incline bench. Targets upper chest. Keep shoulder blades retracted.",sets:"3-4",reps:"6-10",restSec:150,injuryModifications:{shoulder:{swap:"incline-db-press",note:"Dumbbells allow more natural shoulder path"}}},
+  {id:"incline-db-press",name:"Incline Dumbbell Press",category:"weightlifting",mode:["gym","home"],muscles:{primary:["chest"],secondary:["front-delts","triceps"]},equipment:["dumbbells","bench"],difficulty:2,splitTags:["push","chest-tri","upper","full"],description:"30-45° incline. Emphasises upper chest. Full stretch at bottom.",sets:"3-4",reps:"8-12",restSec:120,injuryModifications:{shoulder:{note:"Keep elbows at 45° to avoid impingement"}}},
+  {id:"cable-fly",name:"Cable Chest Fly",category:"weightlifting",mode:["gym"],muscles:{primary:["chest"],secondary:["front-delts","serratus"]},equipment:["cable"],difficulty:2,splitTags:["push","chest-tri","upper"],description:"Set cables at shoulder height. Hug-motion with slight elbow bend. Squeeze at centre.",sets:"3",reps:"12-15",restSec:90,injuryModifications:{shoulder:{note:"Lower the cable angle to reduce impingement risk"}}},
+  {id:"pec-deck",name:"Pec Deck Machine",category:"weightlifting",mode:["gym"],muscles:{primary:["chest"],secondary:["front-delts"]},equipment:["machine"],difficulty:1,splitTags:["push","chest-tri","upper"],description:"Machine fly motion. Keep chest tall and core braced.",sets:"3",reps:"12-15",restSec:90,injuryModifications:{shoulder:{note:"Don't let arms go behind torso line"}}},
+  {id:"dips-chest",name:"Chest Dips",category:"bodyweight",mode:["gym","home"],muscles:{primary:["chest","triceps"],secondary:["front-delts"]},equipment:["parallel-bars"],difficulty:3,splitTags:["push","chest-tri","upper"],description:"Lean forward ~30° to bias chest. Lower until upper arms parallel.",sets:"3-4",reps:"8-12",restSec:120,injuryModifications:{shoulder:{swap:"pushup",note:"Dips can aggravate shoulder — use pushups"},elbow:{note:"Reduce depth if painful"}}},
+  {id:"pushup",name:"Push-Up",category:"bodyweight",mode:["home","gym"],muscles:{primary:["chest"],secondary:["triceps","front-delts","core"]},equipment:[],difficulty:1,splitTags:["push","chest-tri","upper","full"],description:"Plank position, lower chest to floor, press up. Keep body rigid throughout.",sets:"3",reps:"10-20",restSec:60,injuryModifications:{wrist:{note:"Use fist position for neutral wrist"},shoulder:{swap:"incline-pushup",note:"Incline reduces load and ROM"}}},
+  {id:"incline-pushup",name:"Incline Push-Up",category:"bodyweight",mode:["home","gym"],muscles:{primary:["chest"],secondary:["triceps","front-delts"]},equipment:[],difficulty:1,splitTags:["push","chest-tri","upper","full"],description:"Hands elevated on bench or step. Easier than floor pushup.",sets:"3",reps:"12-20",restSec:60,injuryModifications:{shoulder:{note:"Higher incline = easier on shoulder"}}},
+  {id:"decline-pushup",name:"Decline Push-Up",category:"bodyweight",mode:["home","gym"],muscles:{primary:["chest"],secondary:["triceps","front-delts"]},equipment:[],difficulty:2,splitTags:["push","chest-tri","upper"],description:"Feet elevated, hands on floor. Targets upper chest. Harder than standard.",sets:"3",reps:"10-15",restSec:75,injuryModifications:{shoulder:{swap:"pushup",note:"Standard pushup if shoulders are sensitive"}}},
+  {id:"db-pullover",name:"Dumbbell Pullover",category:"weightlifting",mode:["gym","home"],muscles:{primary:["chest","lats"],secondary:["triceps","serratus"]},equipment:["dumbbell","bench"],difficulty:2,splitTags:["push","chest-tri","upper"],description:"Lie perpendicular to bench, arc dumbbell behind head with slight elbow bend.",sets:"3",reps:"10-14",restSec:90,injuryModifications:{shoulder:{note:"Keep elbows slightly bent — stop at ear level"}}},
+
+  // BACK
+  {id:"deadlift",name:"Conventional Deadlift",category:"weightlifting",mode:["gym"],muscles:{primary:["hamstrings","glutes","lower-back"],secondary:["traps","lats","core","quads"]},equipment:["barbell"],difficulty:4,splitTags:["pull","back-bi","lower","full"],description:"Hip-hinge pull from floor to lockout. Bar close to shins, chest tall, brace core.",sets:"3-5",reps:"3-6",restSec:240,injuryModifications:{back:{swap:"romanian-deadlift",note:"RDL with lighter load"},knee:{swap:"trap-bar-deadlift",note:"Trap bar reduces knee demand"},hamstring:{swap:"hip-thrust",note:"Reduce hamstring tension"}}},
+  {id:"barbell-row",name:"Barbell Row",category:"weightlifting",mode:["gym"],muscles:{primary:["lats","rhomboids"],secondary:["biceps","rear-delts","lower-back"]},equipment:["barbell"],difficulty:3,splitTags:["pull","back-bi","upper","full"],description:"Hinge at hip 45°, row bar to lower rib cage. Squeeze shoulder blades.",sets:"3-4",reps:"6-10",restSec:120,injuryModifications:{back:{swap:"chest-supported-row",note:"Chest support eliminates lower back stress"},elbow:{swap:"seated-cable-row",note:"Cable allows consistent tension"}}},
+  {id:"pullup",name:"Pull-Up",category:"bodyweight",mode:["home","gym"],muscles:{primary:["lats"],secondary:["biceps","rear-delts","core"]},equipment:["pullup-bar"],difficulty:3,splitTags:["pull","back-bi","upper","full"],description:"Pronated grip, hang from bar, pull chest to bar. Full extension at bottom.",sets:"3-4",reps:"5-12",restSec:90,injuryModifications:{shoulder:{note:"Band-assisted to reduce load"},elbow:{swap:"inverted-row",note:"Inverted row reduces elbow flexion load"}}},
+  {id:"chinup",name:"Chin-Up",category:"bodyweight",mode:["home","gym"],muscles:{primary:["lats","biceps"],secondary:["rear-delts","core"]},equipment:["pullup-bar"],difficulty:3,splitTags:["pull","back-bi","upper","full"],description:"Supinated (underhand) grip. More bicep involvement. Pull chin over bar.",sets:"3-4",reps:"5-12",restSec:90,injuryModifications:{shoulder:{note:"Supinated grip is generally more shoulder-friendly"},elbow:{swap:"inverted-row",note:"Reduce elbow load"}}},
+  {id:"lat-pulldown",name:"Lat Pulldown",category:"weightlifting",mode:["gym"],muscles:{primary:["lats"],secondary:["biceps","rear-delts","rhomboids"]},equipment:["cable","machine"],difficulty:1,splitTags:["pull","back-bi","upper","full"],description:"Pull bar to upper chest, lead with elbows. Lean back slightly. Full stretch at top.",sets:"3-4",reps:"10-14",restSec:90,injuryModifications:{shoulder:{note:"Use shoulder-width grip, not wide"},elbow:{note:"Slow the eccentric to reduce strain"}}},
+  {id:"seated-cable-row",name:"Seated Cable Row",category:"weightlifting",mode:["gym"],muscles:{primary:["lats","rhomboids"],secondary:["biceps","rear-delts"]},equipment:["cable"],difficulty:1,splitTags:["pull","back-bi","upper","full"],description:"Sit upright, row handle to lower stomach. Squeeze shoulder blades together.",sets:"3-4",reps:"10-14",restSec:90,injuryModifications:{back:{note:"Keep torso upright — avoid rocking"},elbow:{note:"Neutral grip reduces elbow stress"}}},
+  {id:"db-row",name:"Single-Arm Dumbbell Row",category:"weightlifting",mode:["gym","home"],muscles:{primary:["lats"],secondary:["rhomboids","biceps","rear-delts"]},equipment:["dumbbell","bench"],difficulty:2,splitTags:["pull","back-bi","upper","full"],description:"Knee and hand on bench, row dumbbell to hip. Let shoulder blade move freely.",sets:"3-4",reps:"10-14 each",restSec:90,injuryModifications:{back:{note:"Supported position removes lower back stress"}}},
+  {id:"chest-supported-row",name:"Chest-Supported Row",category:"weightlifting",mode:["gym"],muscles:{primary:["rhomboids","lats"],secondary:["rear-delts","biceps"]},equipment:["dumbbells","bench"],difficulty:2,splitTags:["pull","back-bi","upper"],description:"Lie face down on incline bench, row dumbbells to sides. Zero lower back stress.",sets:"3-4",reps:"10-14",restSec:90,injuryModifications:{back:{note:"Best back exercise for lower back issues"}}},
+  {id:"face-pull",name:"Face Pull",category:"weightlifting",mode:["gym"],muscles:{primary:["rear-delts","rhomboids"],secondary:["traps"]},equipment:["cable"],difficulty:1,splitTags:["pull","back-bi","upper"],description:"Rope at eye height, pull to forehead, elbows flared. Great shoulder health.",sets:"3",reps:"15-20",restSec:60,injuryModifications:{shoulder:{note:"One of the best exercises for shoulder recovery"}}},
+  {id:"inverted-row",name:"Inverted Row",category:"bodyweight",mode:["home","gym"],muscles:{primary:["lats","rhomboids"],secondary:["biceps","rear-delts","core"]},equipment:["barbell","table"],difficulty:1,splitTags:["pull","back-bi","upper","full"],description:"Body under bar, pull chest to bar keeping body rigid. Adjust angle for difficulty.",sets:"3",reps:"10-15",restSec:75,injuryModifications:{shoulder:{note:"Lower angle reduces shoulder load"},back:{note:"No spinal compression"}}},
+  {id:"trap-bar-deadlift",name:"Trap Bar Deadlift",category:"weightlifting",mode:["gym"],muscles:{primary:["quads","glutes","hamstrings"],secondary:["traps","lower-back","core"]},equipment:["trap-bar"],difficulty:3,splitTags:["pull","lower","full"],description:"More upright torso than conventional. Great for quad emphasis and beginners.",sets:"3-4",reps:"5-8",restSec:180,injuryModifications:{back:{note:"More back-friendly than conventional"},knee:{note:"Adjust foot position to reduce knee stress"}}},
+  {id:"trx-row",name:"TRX Row",category:"suspension",mode:["home","gym"],muscles:{primary:["lats","rhomboids"],secondary:["biceps","rear-delts","core"]},equipment:["trx"],difficulty:1,splitTags:["pull","back-bi","upper","full"],description:"Lean back holding TRX handles, row body up. Adjust angle for intensity.",sets:"3",reps:"10-15",restSec:75,injuryModifications:{back:{note:"Reduce lean angle to lower load"}}},
+
+  // SHOULDERS
+  {id:"overhead-press",name:"Barbell Overhead Press",category:"weightlifting",mode:["gym"],muscles:{primary:["front-delts","side-delts"],secondary:["triceps","upper-traps","core"]},equipment:["barbell"],difficulty:3,splitTags:["push","shoulders-legs","upper","full"],description:"Press bar from shoulders overhead to full lockout. Bar travels close to face.",sets:"3-4",reps:"5-8",restSec:180,injuryModifications:{shoulder:{swap:"landmine-press",note:"Landmine press is shoulder-friendly at an angle"},back:{swap:"seated-db-press",note:"Seated reduces spinal load"}}},
+  {id:"seated-db-press",name:"Seated Dumbbell Press",category:"weightlifting",mode:["gym","home"],muscles:{primary:["front-delts","side-delts"],secondary:["triceps"]},equipment:["dumbbells","bench"],difficulty:2,splitTags:["push","shoulders-legs","upper","full"],description:"Seated, press dumbbells from ear level overhead.",sets:"3-4",reps:"8-12",restSec:120,injuryModifications:{shoulder:{note:"Don't lock elbows fully"}}},
+  {id:"db-lateral-raise",name:"Dumbbell Lateral Raise",category:"weightlifting",mode:["gym","home"],muscles:{primary:["side-delts"],secondary:["front-delts","traps"]},equipment:["dumbbells"],difficulty:1,splitTags:["push","shoulders-legs","upper"],description:"Raise dumbbells to shoulder height with slight elbow bend. Lead with elbows.",sets:"3-4",reps:"12-20",restSec:60,injuryModifications:{shoulder:{note:"Keep weights light, lead with elbow"}}},
+  {id:"cable-lateral-raise",name:"Cable Lateral Raise",category:"weightlifting",mode:["gym"],muscles:{primary:["side-delts"],secondary:["front-delts"]},equipment:["cable"],difficulty:1,splitTags:["push","shoulders-legs","upper"],description:"Cable at ankle height, raise arm to shoulder level. Constant tension.",sets:"3",reps:"12-20",restSec:60,injuryModifications:{shoulder:{note:"Lighter load with constant tension is joint-friendly"}}},
+  {id:"rear-delt-fly",name:"Rear Delt Fly",category:"weightlifting",mode:["gym","home"],muscles:{primary:["rear-delts"],secondary:["rhomboids","traps"]},equipment:["dumbbells"],difficulty:1,splitTags:["pull","back-bi","shoulders-legs","upper"],description:"Hinged at hip, raise arms out to sides. Keep slight elbow bend.",sets:"3",reps:"12-20",restSec:60,injuryModifications:{back:{note:"Seated or supported to remove lower back stress"}}},
+  {id:"arnold-press",name:"Arnold Press",category:"weightlifting",mode:["gym","home"],muscles:{primary:["front-delts","side-delts"],secondary:["triceps","rear-delts"]},equipment:["dumbbells"],difficulty:2,splitTags:["push","shoulders-legs","upper"],description:"Start with palms facing you, rotate to press overhead. Hits all three delt heads.",sets:"3",reps:"10-12",restSec:90,injuryModifications:{shoulder:{swap:"seated-db-press",note:"Arnold press has wider ROM — switch to standard if painful"}}},
+  {id:"landmine-press",name:"Landmine Press",category:"weightlifting",mode:["gym"],muscles:{primary:["front-delts","chest"],secondary:["triceps","core"]},equipment:["barbell"],difficulty:2,splitTags:["push","chest-tri","shoulders-legs","upper"],description:"One end of barbell fixed, press from shoulder at an angle overhead.",sets:"3",reps:"10-14 each",restSec:90,injuryModifications:{shoulder:{note:"Excellent shoulder-friendly pressing variation"}}},
+  {id:"upright-row",name:"Upright Row",category:"weightlifting",mode:["gym"],muscles:{primary:["side-delts","traps"],secondary:["front-delts","biceps"]},equipment:["barbell","dumbbells"],difficulty:2,splitTags:["push","shoulders-legs","upper"],description:"Pull bar/dumbbells straight up to chin, elbows flared. Wide grip is safer.",sets:"3",reps:"10-14",restSec:90,injuryModifications:{shoulder:{note:"Avoid with shoulder impingement — switch to lateral raise"}}},
+
+  // TRICEPS
+  {id:"tricep-pushdown",name:"Tricep Cable Pushdown",category:"weightlifting",mode:["gym"],muscles:{primary:["triceps"],secondary:[]},equipment:["cable"],difficulty:1,splitTags:["push","chest-tri","upper"],description:"Rope or bar attachment, push down to full extension. Elbows pinned to sides.",sets:"3-4",reps:"12-20",restSec:60,injuryModifications:{elbow:{note:"Reduce weight and control movement slowly"}}},
+  {id:"skull-crusher",name:"Skull Crusher",category:"weightlifting",mode:["gym"],muscles:{primary:["triceps"],secondary:[]},equipment:["barbell","dumbbells","bench"],difficulty:2,splitTags:["push","chest-tri","upper"],description:"Lie on bench, lower bar/dumbbells toward forehead by bending elbows only.",sets:"3",reps:"10-14",restSec:90,injuryModifications:{elbow:{swap:"tricep-pushdown",note:"Cable pushdown is far easier on elbows"}}},
+  {id:"overhead-tricep-ext",name:"Overhead Tricep Extension",category:"weightlifting",mode:["gym","home"],muscles:{primary:["triceps"],secondary:[]},equipment:["dumbbell","cable"],difficulty:1,splitTags:["push","chest-tri","upper"],description:"Hold dumbbell overhead with both hands, lower behind head by bending elbows.",sets:"3",reps:"12-15",restSec:75,injuryModifications:{elbow:{note:"Reduce ROM if painful"},shoulder:{note:"Don't let elbows flare wide"}}},
+  {id:"close-grip-bench",name:"Close-Grip Bench Press",category:"weightlifting",mode:["gym"],muscles:{primary:["triceps"],secondary:["chest","front-delts"]},equipment:["barbell","bench"],difficulty:3,splitTags:["push","chest-tri","upper"],description:"Narrow grip bench press. Elbows tucked, lower to sternum. Tricep dominant.",sets:"3",reps:"8-12",restSec:120,injuryModifications:{elbow:{swap:"tricep-pushdown",note:"Cable pushdown safer on elbows"},wrist:{swap:"db-bench-press",note:"Dumbbells allow neutral wrist"}}},
+  {id:"dips-tricep",name:"Tricep Dip",category:"bodyweight",mode:["home","gym"],muscles:{primary:["triceps"],secondary:["chest","front-delts"]},equipment:["parallel-bars","chair"],difficulty:2,splitTags:["push","chest-tri","upper"],description:"Stay upright to bias triceps. Lower to 90° elbow bend, press to lockout.",sets:"3",reps:"8-15",restSec:90,injuryModifications:{shoulder:{swap:"overhead-tricep-ext",note:"Overhead extension removes shoulder stress"},elbow:{note:"Limit depth if painful"}}},
+  {id:"diamond-pushup",name:"Diamond Push-Up",category:"bodyweight",mode:["home","gym"],muscles:{primary:["triceps"],secondary:["chest","front-delts"]},equipment:[],difficulty:2,splitTags:["push","chest-tri","upper","full"],description:"Hands form diamond shape under chest. Most tricep-dominant pushup variation.",sets:"3",reps:"10-15",restSec:75,injuryModifications:{wrist:{note:"Adjust hand angle for comfort"}}},
+
+  // BICEPS
+  {id:"barbell-curl",name:"Barbell Curl",category:"weightlifting",mode:["gym"],muscles:{primary:["biceps"],secondary:["forearms"]},equipment:["barbell"],difficulty:1,splitTags:["pull","back-bi","upper"],description:"Elbows pinned to sides, curl bar from hips to shoulders. Controlled eccentric.",sets:"3-4",reps:"10-14",restSec:75,injuryModifications:{elbow:{note:"Reduce weight, slow the movement"},wrist:{swap:"hammer-curl",note:"Hammer curl uses neutral wrist"}}},
+  {id:"db-curl",name:"Dumbbell Curl",category:"weightlifting",mode:["gym","home"],muscles:{primary:["biceps"],secondary:["forearms"]},equipment:["dumbbells"],difficulty:1,splitTags:["pull","back-bi","upper","full"],description:"Alternate or simultaneous. Supinate wrist at top for peak contraction.",sets:"3-4",reps:"10-14 each",restSec:75,injuryModifications:{elbow:{note:"Reduce weight and ROM"},wrist:{swap:"hammer-curl",note:"Neutral grip removes wrist stress"}}},
+  {id:"hammer-curl",name:"Hammer Curl",category:"weightlifting",mode:["gym","home"],muscles:{primary:["biceps","forearms"],secondary:[]},equipment:["dumbbells"],difficulty:1,splitTags:["pull","back-bi","upper"],description:"Neutral (hammer) grip throughout. Targets brachialis and brachioradialis too.",sets:"3",reps:"10-14",restSec:75,injuryModifications:{elbow:{note:"Neutral grip is easiest on elbow"},wrist:{note:"Safest curl variation for wrist issues"}}},
+  {id:"incline-db-curl",name:"Incline Dumbbell Curl",category:"weightlifting",mode:["gym"],muscles:{primary:["biceps"],secondary:["forearms"]},equipment:["dumbbells","bench"],difficulty:2,splitTags:["pull","back-bi","upper"],description:"Lie on incline bench, arms hang freely. Greater stretch at bottom.",sets:"3",reps:"10-14",restSec:75,injuryModifications:{shoulder:{note:"Full stretch can stress bicep tendon — reduce ROM"}}},
+  {id:"cable-curl",name:"Cable Curl",category:"weightlifting",mode:["gym"],muscles:{primary:["biceps"],secondary:["forearms"]},equipment:["cable"],difficulty:1,splitTags:["pull","back-bi","upper"],description:"Constant tension through full ROM. Great finishing exercise.",sets:"3",reps:"12-15",restSec:60,injuryModifications:{elbow:{note:"Cable tension is more joint-friendly"}}},
+  {id:"preacher-curl",name:"Preacher Curl",category:"weightlifting",mode:["gym"],muscles:{primary:["biceps"],secondary:[]},equipment:["barbell","dumbbells","machine"],difficulty:2,splitTags:["pull","back-bi","upper"],description:"Upper arms braced on pad, curl from full extension. Pure bicep isolation.",sets:"3",reps:"10-14",restSec:75,injuryModifications:{elbow:{note:"Full extension stresses elbow — stop short"}}},
+
+  // LEGS - QUADS
+  {id:"barbell-squat",name:"Barbell Back Squat",category:"weightlifting",mode:["gym"],muscles:{primary:["quads","glutes"],secondary:["hamstrings","core","lower-back"]},equipment:["barbell","rack"],difficulty:4,splitTags:["legs","shoulders-legs","lower","full"],description:"Bar on upper traps, squat to parallel or below. Knees track over toes.",sets:"3-5",reps:"5-8",restSec:180,injuryModifications:{knee:{swap:"leg-press",note:"Avoid deep knee flexion"},back:{swap:"goblet-squat",note:"Goblet reduces spinal load"},shoulder:{swap:"goblet-squat",note:"Goblet removes shoulder strain"}}},
+  {id:"front-squat",name:"Front Squat",category:"weightlifting",mode:["gym"],muscles:{primary:["quads"],secondary:["glutes","core","upper-back"]},equipment:["barbell","rack"],difficulty:4,splitTags:["legs","lower"],description:"Bar on front delts, elbows up. Very upright torso. Deep quad emphasis.",sets:"3-4",reps:"5-8",restSec:180,injuryModifications:{back:{note:"Most back-friendly barbell squat"}}},
+  {id:"goblet-squat",name:"Goblet Squat",category:"weightlifting",mode:["gym","home"],muscles:{primary:["quads","glutes"],secondary:["core","upper-back"]},equipment:["dumbbell","kettlebell"],difficulty:1,splitTags:["legs","shoulders-legs","lower","full"],description:"Hold weight at chest, squat deep. Great for beginners. Naturally upright torso.",sets:"3",reps:"10-15",restSec:90,injuryModifications:{knee:{note:"Limit depth to pain-free range"},back:{note:"Inherently back-friendly"}}},
+  {id:"leg-press",name:"Leg Press",category:"weightlifting",mode:["gym"],muscles:{primary:["quads","glutes"],secondary:["hamstrings"]},equipment:["machine"],difficulty:1,splitTags:["legs","shoulders-legs","lower"],description:"Feet on platform, press to extension. Foot position changes muscle emphasis.",sets:"3-4",reps:"10-15",restSec:120,injuryModifications:{back:{note:"No spinal load — best quad machine for back issues"},knee:{note:"Avoid locking knees at top"}}},
+  {id:"leg-extension",name:"Leg Extension",category:"weightlifting",mode:["gym"],muscles:{primary:["quads"],secondary:[]},equipment:["machine"],difficulty:1,splitTags:["legs","lower"],description:"Seated, extend legs to full lockout. Excellent quad isolation. Slow eccentric.",sets:"3",reps:"12-20",restSec:75,injuryModifications:{knee:{note:"Some knee issues worsen with leg extension — use with caution"}}},
+  {id:"hack-squat",name:"Hack Squat Machine",category:"weightlifting",mode:["gym"],muscles:{primary:["quads"],secondary:["glutes","hamstrings"]},equipment:["machine"],difficulty:2,splitTags:["legs","lower"],description:"Feet forward on sled, squat deep. Excellent quad development.",sets:"3-4",reps:"8-12",restSec:120,injuryModifications:{back:{note:"Supported back removes lower back stress"},knee:{note:"Higher foot position reduces knee stress"}}},
+  {id:"split-squat",name:"Bulgarian Split Squat",category:"bodyweight",mode:["gym","home"],muscles:{primary:["quads","glutes"],secondary:["hamstrings","core"]},equipment:["bench","dumbbells"],difficulty:3,splitTags:["legs","shoulders-legs","lower","full"],description:"Rear foot elevated on bench, front foot forward. Deep lunge. Each leg independently.",sets:"3-4",reps:"8-12 each",restSec:120,injuryModifications:{knee:{swap:"glute-bridge",note:"High knee demand — switch to bridges"},hip:{note:"Reduce depth"}}},
+  {id:"lunge",name:"Reverse Lunge",category:"bodyweight",mode:["home","gym"],muscles:{primary:["quads","glutes"],secondary:["hamstrings","core"]},equipment:[],difficulty:1,splitTags:["legs","lower","full"],description:"Step back into lunge, front knee over ankle. Easier on knee than forward lunge.",sets:"3",reps:"10-12 each",restSec:60,injuryModifications:{knee:{swap:"glute-bridge",note:"Glute bridges avoid knee flexion"},hip:{note:"Reduce step depth"}}},
+  {id:"walking-lunge",name:"Walking Lunge",category:"bodyweight",mode:["gym","home"],muscles:{primary:["quads","glutes"],secondary:["hamstrings","core","calves"]},equipment:[],difficulty:2,splitTags:["legs","lower","full"],description:"Step forward into lunge, drive up and step through. Add dumbbells for load.",sets:"3",reps:"20 steps",restSec:90,injuryModifications:{knee:{swap:"lunge",note:"Stationary reverse lunge easier on knee"}}},
+  {id:"bodyweight-squat",name:"Bodyweight Squat",category:"bodyweight",mode:["home","gym"],muscles:{primary:["quads","glutes"],secondary:["hamstrings","core"]},equipment:[],difficulty:1,splitTags:["legs","lower","full"],description:"Feet shoulder-width, squat to parallel, stand tall. Foundation movement.",sets:"3",reps:"15-25",restSec:60,injuryModifications:{knee:{swap:"wall-sit",note:"Wall sit is isometric, less knee stress"}}},
+  {id:"wall-sit",name:"Wall Sit",category:"bodyweight",mode:["home","gym"],muscles:{primary:["quads"],secondary:["glutes","core"]},equipment:[],difficulty:1,splitTags:["legs","lower"],description:"Back flat on wall, thighs parallel to floor. Isometric hold. Great for knee rehab.",sets:"3",reps:"30-60s",restSec:60,injuryModifications:{knee:{note:"Control knee angle — stop at pain-free depth"}}},
+  {id:"step-up",name:"Step-Up",category:"bodyweight",mode:["home","gym"],muscles:{primary:["quads","glutes"],secondary:["hamstrings","calves"]},equipment:["bench","box"],difficulty:1,splitTags:["legs","lower","full"],description:"Step onto box, drive through heel. Add dumbbells to increase load.",sets:"3",reps:"10-15 each",restSec:75,injuryModifications:{knee:{note:"Lower box reduces knee flexion demand"}}},
+
+  // LEGS - HAMSTRINGS & GLUTES
+  {id:"romanian-deadlift",name:"Romanian Deadlift",category:"weightlifting",mode:["gym","home"],muscles:{primary:["hamstrings","glutes"],secondary:["lower-back","core"]},equipment:["barbell","dumbbells"],difficulty:2,splitTags:["pull","legs","lower","full"],description:"Hinge at hips, lower weight with soft knees, feel hamstring stretch, drive hips forward.",sets:"3-4",reps:"8-12",restSec:120,injuryModifications:{hamstring:{swap:"hip-thrust",note:"Avoid hamstring stretch; hip thrust safer"},back:{note:"Keep neutral spine throughout"}}},
+  {id:"hip-thrust",name:"Barbell Hip Thrust",category:"weightlifting",mode:["gym"],muscles:{primary:["glutes"],secondary:["hamstrings","core"]},equipment:["barbell","bench"],difficulty:2,splitTags:["legs","lower","full"],description:"Upper back on bench, drive hips up with barbell to full extension. Squeeze glutes.",sets:"3-4",reps:"8-15",restSec:90,injuryModifications:{back:{note:"Excellent low-back-friendly glute exercise"},knee:{note:"Minimal knee stress"}}},
+  {id:"glute-bridge",name:"Glute Bridge",category:"bodyweight",mode:["home","gym"],muscles:{primary:["glutes","hamstrings"],secondary:["core","lower-back"]},equipment:[],difficulty:1,splitTags:["legs","lower","full"],description:"On back, drive hips up, squeeze glutes at top. Single-leg variation adds difficulty.",sets:"3",reps:"15-20",restSec:60,injuryModifications:{back:{note:"Core back rehab exercise"},knee:{note:"Low knee stress"}}},
+  {id:"single-leg-rdl",name:"Single-Leg Romanian Deadlift",category:"weightlifting",mode:["gym","home"],muscles:{primary:["hamstrings","glutes"],secondary:["lower-back","core"]},equipment:["dumbbell","kettlebell"],difficulty:3,splitTags:["legs","lower"],description:"Balance on one leg, hinge forward, reach toward floor. High stability demand.",sets:"3",reps:"8-12 each",restSec:90,injuryModifications:{back:{note:"Less spinal load than bilateral RDL"}}},
+  {id:"lying-hamstring-curl",name:"Lying Leg Curl",category:"weightlifting",mode:["gym"],muscles:{primary:["hamstrings"],secondary:["calves"]},equipment:["machine"],difficulty:1,splitTags:["legs","lower"],description:"Face down on machine, curl heels toward glutes. Slow eccentric.",sets:"3-4",reps:"10-15",restSec:90,injuryModifications:{hamstring:{note:"Use lighter weight and reduce ROM during recovery"}}},
+  {id:"sumo-deadlift",name:"Sumo Deadlift",category:"weightlifting",mode:["gym"],muscles:{primary:["glutes","hamstrings"],secondary:["quads","lower-back","groin"]},equipment:["barbell"],difficulty:3,splitTags:["legs","lower"],description:"Wide stance, toes out. More hip, less back than conventional.",sets:"3-4",reps:"5-8",restSec:180,injuryModifications:{back:{note:"More back-friendly than conventional"},knee:{note:"Adjust foot angle to feel comfortable"}}},
+  {id:"cable-kickback",name:"Cable Glute Kickback",category:"weightlifting",mode:["gym"],muscles:{primary:["glutes"],secondary:["hamstrings"]},equipment:["cable"],difficulty:1,splitTags:["legs","lower"],description:"Ankle strap on cable, kick leg back squeezing glute at full extension.",sets:"3",reps:"15-20 each",restSec:60,injuryModifications:{back:{note:"Avoid excessive lumbar extension"}}},
+  {id:"trx-hamstring-curl",name:"TRX Hamstring Curl",category:"suspension",mode:["home","gym"],muscles:{primary:["hamstrings","glutes"],secondary:["core"]},equipment:["trx"],difficulty:2,splitTags:["legs","lower","full"],description:"Heels in straps, bridge up, curl heels toward glutes.",sets:"3",reps:"10-15",restSec:75,injuryModifications:{hamstring:{note:"Reduce range of motion during recovery"}}},
+
+  // CORE
+  {id:"plank",name:"Plank",category:"bodyweight",mode:["home","gym"],muscles:{primary:["core"],secondary:["shoulders","glutes","quads"]},equipment:[],difficulty:1,splitTags:["push","pull","legs","upper","lower","full","chest-tri","back-bi","shoulders-legs"],description:"Forearm plank. Hold rigid position. Don't let hips sag or pike.",sets:"3",reps:"30-60s",restSec:60,injuryModifications:{shoulder:{swap:"dead-bug",note:"Dead bug trains core without shoulder load"},back:{swap:"bird-dog",note:"Bird dog is gentle on the spine"}}},
+  {id:"dead-bug",name:"Dead Bug",category:"bodyweight",mode:["home","gym"],muscles:{primary:["core"],secondary:["hip-flexors"]},equipment:[],difficulty:1,splitTags:["full","lower"],description:"On back, extend opposite arm/leg while keeping low back flat.",sets:"3",reps:"8-10 each",restSec:60,injuryModifications:{back:{note:"Safest core exercise for back issues"}}},
+  {id:"bird-dog",name:"Bird Dog",category:"bodyweight",mode:["home","gym"],muscles:{primary:["core","lower-back"],secondary:["glutes","shoulders"]},equipment:[],difficulty:1,splitTags:["full","lower"],description:"On all fours, extend opposite arm and leg. Hold 2-3s. Excellent spinal stability.",sets:"3",reps:"8-10 each",restSec:60,injuryModifications:{back:{note:"Core pillar for back rehabilitation"}}},
+  {id:"ab-wheel",name:"Ab Wheel Rollout",category:"bodyweight",mode:["gym","home"],muscles:{primary:["core"],secondary:["lats","shoulders","triceps"]},equipment:["ab-wheel"],difficulty:4,splitTags:["full"],description:"From knees, roll wheel forward until body is extended, pull back. Advanced core.",sets:"3",reps:"8-12",restSec:90,injuryModifications:{back:{swap:"dead-bug",note:"Ab wheel is high spinal load — avoid with back issues"}}},
+  {id:"hanging-leg-raise",name:"Hanging Leg Raise",category:"bodyweight",mode:["gym"],muscles:{primary:["core"],secondary:["hip-flexors","lats"]},equipment:["pullup-bar"],difficulty:3,splitTags:["full"],description:"Hang from bar, raise straight legs to horizontal or higher. Control descent.",sets:"3",reps:"10-15",restSec:75,injuryModifications:{shoulder:{note:"Use straps to reduce grip stress"},back:{swap:"dead-bug",note:"High spinal load — avoid with back issues"}}},
+  {id:"mountain-climber",name:"Mountain Climber",category:"bodyweight",mode:["home","gym"],muscles:{primary:["core"],secondary:["shoulders","hip-flexors","quads"]},equipment:[],difficulty:2,splitTags:["full"],description:"From plank, drive knees alternately toward chest at pace. Keep hips level.",sets:"3",reps:"30-45s",restSec:60,injuryModifications:{shoulder:{swap:"plank",note:"Static plank removes dynamic shoulder stress"},knee:{swap:"dead-bug",note:"Dead bug avoids knee compression"}}},
+  {id:"russian-twist",name:"Russian Twist",category:"bodyweight",mode:["home","gym"],muscles:{primary:["obliques","core"],secondary:["hip-flexors"]},equipment:[],difficulty:2,splitTags:["full"],description:"Seated, lean back 45°, rotate side to side. Add weight plate for difficulty.",sets:"3",reps:"20-30 total",restSec:60,injuryModifications:{back:{swap:"bird-dog",note:"Rotation under load stresses back — avoid"}}},
+  {id:"cable-crunch",name:"Cable Crunch",category:"weightlifting",mode:["gym"],muscles:{primary:["core"],secondary:["obliques"]},equipment:["cable"],difficulty:1,splitTags:["full"],description:"Kneeling, rope attachment at top, crunch down. Loadable ab exercise.",sets:"3",reps:"15-20",restSec:60,injuryModifications:{back:{note:"Keep movement smooth — no jerking"}}},
+
+  // TRX
+  {id:"trx-pushup",name:"TRX Push-Up",category:"suspension",mode:["home","gym"],muscles:{primary:["chest"],secondary:["triceps","core","stabilizers"]},equipment:["trx"],difficulty:2,splitTags:["push","chest-tri","upper","full"],description:"Feet in TRX, body in plank, perform push-up. Instability fires stabilizers.",sets:"3",reps:"8-15",restSec:75,injuryModifications:{shoulder:{swap:"trx-row",note:"Rows are more shoulder-friendly"}}},
+  {id:"trx-squat",name:"TRX Squat",category:"suspension",mode:["home","gym"],muscles:{primary:["quads","glutes"],secondary:["core","hamstrings"]},equipment:["trx"],difficulty:1,splitTags:["legs","lower","full"],description:"Hold TRX for balance, squat deep. Great for mobility and beginners.",sets:"3",reps:"12-20",restSec:60,injuryModifications:{knee:{note:"Handles allow offloading and depth control"}}},
+  {id:"trx-lunge",name:"TRX Lunge",category:"suspension",mode:["home","gym"],muscles:{primary:["quads","glutes"],secondary:["hamstrings","core"]},equipment:["trx"],difficulty:2,splitTags:["legs","lower"],description:"One foot in TRX strap behind you, lunge on front leg.",sets:"3",reps:"10-12 each",restSec:75,injuryModifications:{knee:{swap:"trx-squat",note:"Bilateral squat safer for knee issues"}}},
+  {id:"trx-plank",name:"TRX Plank",category:"suspension",mode:["home","gym"],muscles:{primary:["core"],secondary:["shoulders","glutes"]},equipment:["trx"],difficulty:2,splitTags:["full"],description:"Feet in straps, hold plank position. Instability intensifies core challenge.",sets:"3",reps:"20-45s",restSec:60,injuryModifications:{shoulder:{swap:"plank",note:"Floor plank removes instability load"}}},
+  {id:"trx-pike",name:"TRX Pike",category:"suspension",mode:["home","gym"],muscles:{primary:["core","shoulders"],secondary:["lats","hip-flexors"]},equipment:["trx"],difficulty:3,splitTags:["full"],description:"Feet in straps, pike hips high driving feet toward handles. Advanced.",sets:"3",reps:"10-12",restSec:90,injuryModifications:{shoulder:{swap:"trx-plank",note:"Plank is safer for shoulders"}}},
+
+  // MOBILITY
+  {id:"hip-flexor-stretch",name:"Kneeling Hip Flexor Stretch",category:"mobility",mode:["home","gym"],muscles:{primary:["hip-flexors"],secondary:["quads"]},equipment:[],difficulty:1,splitTags:["legs","lower","full"],description:"Half-kneeling, drive hip forward gently. Hold 30-60s each side.",sets:"2-3",reps:"30-60s each",restSec:30,injuryModifications:{knee:{note:"Place pad under knee"},hip:{note:"Reduce forward drive"}}},
+  {id:"thoracic-rotation",name:"Thoracic Rotation",category:"mobility",mode:["home","gym"],muscles:{primary:["thoracic-spine","obliques"],secondary:["lats"]},equipment:[],difficulty:1,splitTags:["upper","full","push","pull"],description:"Side-lying, rotate top arm open toward floor. 10 reps each side.",sets:"2-3",reps:"10-12 each",restSec:30,injuryModifications:{back:{note:"Essential for back rehab"},shoulder:{note:"Reduce rotation if shoulder is involved"}}},
+  {id:"world-greatest-stretch",name:"World's Greatest Stretch",category:"mobility",mode:["home","gym"],muscles:{primary:["hip-flexors","thoracic-spine"],secondary:["groin","hamstrings","glutes"]},equipment:[],difficulty:1,splitTags:["full","legs","lower"],description:"Lunge + thoracic rotation + reach. Full body mobility in one sequence.",sets:"2",reps:"5-8 each",restSec:30,injuryModifications:{knee:{note:"Keep lunge shallow"},back:{note:"Move slowly"}}},
+  {id:"cat-cow",name:"Cat-Cow",category:"mobility",mode:["home","gym"],muscles:{primary:["spine","core"],secondary:["neck"]},equipment:[],difficulty:1,splitTags:["full"],description:"All-fours spinal flexion/extension. Slow, breathe with each rep.",sets:"2",reps:"10-15",restSec:30,injuryModifications:{back:{note:"Gentle spinal mobility — excellent for back pain"}}},
+  {id:"pigeon-pose",name:"Pigeon Pose",category:"mobility",mode:["home","gym"],muscles:{primary:["glutes","piriformis","hip-flexors"],secondary:["groin"]},equipment:[],difficulty:1,splitTags:["legs","lower","full"],description:"From plank, front shin horizontal, lower hips toward floor. Hold 45-90s.",sets:"2",reps:"45-90s each",restSec:30,injuryModifications:{knee:{swap:"supine-figure-4",note:"Supine figure-4 removes knee stress"},hip:{note:"Use block under hip"}}},
+  {id:"supine-figure-4",name:"Supine Figure-4 Stretch",category:"mobility",mode:["home","gym"],muscles:{primary:["glutes","piriformis"],secondary:[]},equipment:[],difficulty:1,splitTags:["legs","lower","full"],description:"On back, cross ankle over opposite knee, pull legs toward chest.",sets:"2",reps:"45-90s each",restSec:30,injuryModifications:{knee:{note:"Safest glute stretch for knee issues"}}},
+  {id:"doorway-chest-stretch",name:"Doorway Chest Stretch",category:"mobility",mode:["home","gym"],muscles:{primary:["chest","front-delts"],secondary:["biceps"]},equipment:[],difficulty:1,splitTags:["push","chest-tri","upper"],description:"Arms at 90° in doorway, lean forward gently. Hold 30s each side.",sets:"2",reps:"30-45s",restSec:30,injuryModifications:{shoulder:{note:"Reduce arm angle if painful"}}},
+  {id:"ankle-circles",name:"Ankle Circles",category:"mobility",mode:["home","gym"],muscles:{primary:["ankles"],secondary:["calves"]},equipment:[],difficulty:1,splitTags:["legs","lower","full"],description:"Rotate ankles in full circles both directions. Core rehab for ankle sprains.",sets:"2",reps:"10 each direction",restSec:30,injuryModifications:{ankle:{note:"Primary ankle rehab exercise"}}},
+  {id:"shoulder-cars",name:"Shoulder CARs",category:"mobility",mode:["home","gym"],muscles:{primary:["shoulders"],secondary:["traps"]},equipment:[],difficulty:1,splitTags:["push","pull","upper","chest-tri","back-bi","shoulders-legs"],description:"Slow shoulder circles through full ROM. Both directions. Controlled Articular Rotations.",sets:"2",reps:"5 each direction",restSec:30,injuryModifications:{shoulder:{note:"Core shoulder rehab — go slow and controlled"}}},
+  {id:"couch-stretch",name:"Couch Stretch",category:"mobility",mode:["home","gym"],muscles:{primary:["hip-flexors","quads"],secondary:[]},equipment:[],difficulty:2,splitTags:["legs","lower","full"],description:"Rear foot elevated on wall or couch, sink hips forward. Deep hip flexor stretch.",sets:"2",reps:"60-90s each",restSec:30,injuryModifications:{knee:{note:"Place pad under knee"},hip:{note:"Control depth"}}},
+  {id:"90-90-stretch",name:"90/90 Hip Stretch",category:"mobility",mode:["home","gym"],muscles:{primary:["glutes","hip-flexors"],secondary:["groin"]},equipment:[],difficulty:1,splitTags:["legs","lower","full"],description:"Sit with both hips at 90°. Work internal and external rotation. Tall spine.",sets:"2",reps:"60s each side",restSec:30,injuryModifications:{hip:{note:"Excellent hip rehabilitation exercise"}}},
+  {id:"lat-stretch",name:"Lat Stretch / Wall Hang",category:"mobility",mode:["home","gym"],muscles:{primary:["lats"],secondary:["thoracic-spine","shoulders"]},equipment:["pullup-bar","rack"],difficulty:1,splitTags:["pull","back-bi","upper"],description:"Hang from bar with slight bend, or hang from rack rail in offset position.",sets:"2",reps:"30-45s",restSec:30,injuryModifications:{shoulder:{note:"Passive hang is great for shoulder health"}}},
+
+  // CARDIO
+  {id:"jumping-jacks",name:"Jumping Jacks",category:"cardio",mode:["home","gym"],muscles:{primary:["full-body"],secondary:[]},equipment:[],difficulty:1,splitTags:["full"],description:"Classic full-body cardio warmup. Land softly, arms coordinated.",sets:"3",reps:"30-60s",restSec:30,injuryModifications:{knee:{note:"Step out side to side instead of jumping"},ankle:{note:"March in place"}}},
+  {id:"burpee",name:"Burpee",category:"cardio",mode:["home","gym"],muscles:{primary:["full-body"],secondary:[]},equipment:[],difficulty:3,splitTags:["full"],description:"Squat thrust to plank, pushup optional, jump. High-intensity metabolic.",sets:"3",reps:"10-15",restSec:90,injuryModifications:{knee:{swap:"inchworm",note:"Inchworm is low-impact alternative"},back:{swap:"jumping-jacks",note:"Avoid spinal flexion under fatigue"}}},
+  {id:"jump-rope",name:"Jump Rope",category:"cardio",mode:["home","gym"],muscles:{primary:["calves","shoulders"],secondary:["core","full-body"]},equipment:["jump-rope"],difficulty:2,splitTags:["full"],description:"Jump rope at moderate pace. Low equipment, high calorie burn.",sets:"5",reps:"60s on / 30s off",restSec:30,injuryModifications:{ankle:{note:"March with high knees instead"},knee:{note:"Low-impact rowing if machine available"}}},
+  {id:"inchworm",name:"Inchworm",category:"cardio",mode:["home","gym"],muscles:{primary:["hamstrings","shoulders","core"],secondary:["chest"]},equipment:[],difficulty:1,splitTags:["full"],description:"Hinge forward, walk hands to plank, walk back. Slow controlled warmup.",sets:"3",reps:"8-12",restSec:60,injuryModifications:{back:{note:"Gentle warming for back, move slowly"}}},
+  {id:"high-knees",name:"High Knees",category:"cardio",mode:["home","gym"],muscles:{primary:["hip-flexors","quads"],secondary:["core","calves"]},equipment:[],difficulty:2,splitTags:["full"],description:"Run in place driving knees to hip height. Stay on toes. Pump arms.",sets:"3",reps:"30-45s",restSec:60,injuryModifications:{knee:{note:"Marching keeps heart rate without impact"},hip:{note:"Reduce knee height"}}},
+  {id:"box-jump",name:"Box Jump",category:"cardio",mode:["gym"],muscles:{primary:["quads","glutes","calves"],secondary:["core","hamstrings"]},equipment:["box"],difficulty:3,splitTags:["legs","lower","full"],description:"Explosive jump onto box. Land softly in squat position. Step down gently.",sets:"3-4",reps:"5-8",restSec:120,injuryModifications:{knee:{swap:"step-up",note:"Step-up removes impact"},ankle:{swap:"bodyweight-squat",note:"Avoid box jump with ankle issues"}}},
+  {id:"squat-jump",name:"Jump Squat",category:"cardio",mode:["home","gym"],muscles:{primary:["quads","glutes","calves"],secondary:["core","hamstrings"]},equipment:[],difficulty:2,splitTags:["legs","lower","full"],description:"Squat to parallel, explode up and jump. Land soft. Full power development.",sets:"3",reps:"10-15",restSec:90,injuryModifications:{knee:{swap:"glute-bridge",note:"High impact — avoid with knee issues"}}},
+  {id:"battle-ropes",name:"Battle Ropes",category:"cardio",mode:["gym"],muscles:{primary:["shoulders","core"],secondary:["lats","biceps","triceps"]},equipment:["battle-ropes"],difficulty:2,splitTags:["full","push","pull"],description:"Alternating or simultaneous waves. Full body conditioning. Great finisher.",sets:"5",reps:"30s on / 30s off",restSec:30,injuryModifications:{shoulder:{note:"Reduce amplitude — smaller movements"}}},
+  {id:"row-machine",name:"Rowing Machine",category:"cardio",mode:["gym"],muscles:{primary:["lats","hamstrings","glutes"],secondary:["core","shoulders","quads"]},equipment:["rower"],difficulty:2,splitTags:["full","pull"],description:"60% legs, 40% arms. Drive with legs first, then lean and pull.",sets:"1",reps:"10-20 min",restSec:0,injuryModifications:{back:{note:"Focus on upright posture — don't round"},knee:{note:"Adjust foot position and limit knee flexion"}}}
 ];
 
-// Muscle group metadata for SVG highlighting
-const MUSCLE_GROUPS = {
-  "chest": { label: "Chest", svgIds: ["chest-left","chest-right"] },
-  "quads": { label: "Quadriceps", svgIds: ["quad-left","quad-right"] },
-  "hamstrings": { label: "Hamstrings", svgIds: ["hamstring-left","hamstring-right"] },
-  "glutes": { label: "Glutes", svgIds: ["glute-left","glute-right"] },
-  "lats": { label: "Latissimus Dorsi", svgIds: ["lat-left","lat-right"] },
-  "rhomboids": { label: "Rhomboids", svgIds: ["rhomboid-left","rhomboid-right"] },
-  "lower-back": { label: "Lower Back", svgIds: ["lower-back"] },
-  "core": { label: "Core / Abs", svgIds: ["abs-upper","abs-lower","oblique-left","oblique-right"] },
-  "triceps": { label: "Triceps", svgIds: ["tricep-left","tricep-right"] },
-  "biceps": { label: "Biceps", svgIds: ["bicep-left","bicep-right"] },
-  "front-delts": { label: "Front Deltoids", svgIds: ["front-delt-left","front-delt-right"] },
-  "side-delts": { label: "Side Deltoids", svgIds: ["side-delt-left","side-delt-right"] },
-  "rear-delts": { label: "Rear Deltoids", svgIds: ["rear-delt-left","rear-delt-right"] },
-  "traps": { label: "Trapezius", svgIds: ["trap-left","trap-right"] },
-  "upper-traps": { label: "Upper Traps", svgIds: ["upper-trap-left","upper-trap-right"] },
-  "calves": { label: "Calves", svgIds: ["calf-left","calf-right"] },
-  "hip-flexors": { label: "Hip Flexors", svgIds: ["hip-flexor-left","hip-flexor-right"] },
-  "thoracic-spine": { label: "Thoracic Spine", svgIds: ["thoracic"] },
-  "spine": { label: "Spine", svgIds: ["thoracic","lumbar"] },
-  "full-body": { label: "Full Body", svgIds: ["chest-left","chest-right","quad-left","quad-right","hamstring-left","hamstring-right","glute-left","glute-right","abs-upper","abs-lower"] },
-  "shoulders": { label: "Shoulders", svgIds: ["front-delt-left","front-delt-right","side-delt-left","side-delt-right"] },
-  "groin": { label: "Groin / Adductors", svgIds: ["adductor-left","adductor-right"] },
-  "ankles": { label: "Ankles", svgIds: ["ankle-left","ankle-right"] },
-  "stabilizers": { label: "Stabilizers", svgIds: [] },
-  "obliques": { label: "Obliques", svgIds: ["oblique-left","oblique-right"] },
-  "tibialis": { label: "Tibialis", svgIds: [] },
-  "piriformis": { label: "Piriformis / Hip External Rotators", svgIds: ["glute-left","glute-right"] },
-  "hip-external-rotators": { label: "Hip External Rotators", svgIds: ["glute-left","glute-right"] },
-  "neck": { label: "Neck / Cervical", svgIds: [] }
+const INJURY_PROFILES={
+  knee:{label:"Knee Pain",icon:"🦵",avoidExercises:["barbell-squat","lunge","walking-lunge","split-squat","jump-rope","burpee","jumping-jacks","high-knees","box-jump","squat-jump","nordic-curl","hack-squat","leg-extension"],prioritize:["glute-bridge","hip-thrust","dead-bug","bird-dog","supine-figure-4","trx-row","cat-cow","ankle-circles","wall-sit","step-up"],note:"Focus on hip-dominant and non-weight-bearing exercises. Avoid high-impact and deep knee flexion."},
+  back:{label:"Back Pain",icon:"🔙",avoidExercises:["deadlift","barbell-squat","barbell-row","burpee","overhead-press","ab-wheel","hanging-leg-raise"],prioritize:["bird-dog","dead-bug","cat-cow","glute-bridge","thoracic-rotation","world-greatest-stretch","hip-flexor-stretch","trx-row","chest-supported-row"],note:"Prioritize spinal mobility and core stabilization. Avoid heavy axial loading."},
+  shoulder:{label:"Shoulder Pain",icon:"💪",avoidExercises:["overhead-press","bench-press","dips-chest","trx-pushup","burpee","arnold-press","upright-row"],prioritize:["trx-row","db-row","glute-bridge","hip-thrust","doorway-chest-stretch","thoracic-rotation","shoulder-cars","face-pull"],note:"Focus on pulling movements and avoid overhead pressing. Restore mobility with gentle stretches."},
+  hamstring:{label:"Hamstring Strain",icon:"🦵",avoidExercises:["deadlift","romanian-deadlift","single-leg-rdl","inchworm"],prioritize:["glute-bridge","hip-thrust","supine-figure-4","bird-dog","trx-hamstring-curl","cat-cow"],note:"Avoid full hamstring stretch under load. Gentle isometrics and hip-dominant work first."},
+  hip:{label:"Hip Pain",icon:"🦴",avoidExercises:["barbell-squat","lunge","walking-lunge","trx-lunge","high-knees","split-squat"],prioritize:["supine-figure-4","pigeon-pose","cat-cow","hip-flexor-stretch","glute-bridge","bird-dog","90-90-stretch"],note:"Restore hip mobility first. Avoid impingement-prone positions."},
+  ankle:{label:"Ankle Sprain",icon:"🦶",avoidExercises:["jump-rope","jumping-jacks","burpee","high-knees","box-jump","squat-jump"],prioritize:["ankle-circles","glute-bridge","dead-bug","trx-row","seated-cable-row"],note:"Work on ankle mobility and stability. Avoid impact during initial recovery."},
+  elbow:{label:"Elbow / Tennis Elbow",icon:"💪",avoidExercises:["bench-press","dips-chest","dips-tricep","barbell-row","skull-crusher"],prioritize:["glute-bridge","bodyweight-squat","cat-cow","hip-thrust"],note:"Rest flexion-heavy movements. Focus on lower body and gentle mobility."},
+  wrist:{label:"Wrist Pain",icon:"🤝",avoidExercises:["pushup","plank","bench-press","trx-pushup","ab-wheel"],prioritize:["hammer-curl","trx-row","glute-bridge","hip-thrust"],note:"Use neutral grip or fist position. Avoid wrist extension under load."}
 };
 
-// Injury areas and related exercises to avoid/include
-const INJURY_PROFILES = {
-  knee: {
-    label: "Knee Pain",
-    icon: "🦵",
-    avoidCategories: [],
-    avoidExercises: ["barbell-squat","lunge","jump-rope","burpee","jumping-jacks","high-knees"],
-    prioritize: ["glute-bridge","hip-thrust","dead-bug","bird-dog","supine-figure-4","trx-row","cat-cow","ankle-circles"],
-    note: "Focus on hip-dominant and non-weight-bearing exercises. Avoid high-impact and deep knee flexion."
-  },
-  back: {
-    label: "Back Pain",
-    icon: "🔙",
-    avoidCategories: [],
-    avoidExercises: ["deadlift","barbell-squat","barbell-row","burpee","overhead-press"],
-    prioritize: ["bird-dog","dead-bug","cat-cow","glute-bridge","thoracic-rotation","world-greatest-stretch","hip-flexor-stretch","trx-row"],
-    note: "Prioritize spinal mobility and core stabilization. Avoid heavy axial loading."
-  },
-  shoulder: {
-    label: "Shoulder Pain",
-    icon: "💪",
-    avoidCategories: [],
-    avoidExercises: ["overhead-press","bench-press","dip","trx-pushup","burpee"],
-    prioritize: ["trx-row","barbell-row","glute-bridge","hip-thrust","doorway-chest-stretch","thoracic-rotation"],
-    note: "Focus on pulling movements and avoid overhead pressing. Restore mobility with gentle stretches."
-  },
-  hamstring: {
-    label: "Hamstring Strain",
-    icon: "🦵",
-    avoidCategories: [],
-    avoidExercises: ["deadlift","romanian-deadlift","inchworm"],
-    prioritize: ["glute-bridge","hip-thrust","supine-figure-4","bird-dog","trx-hamstring-curl","cat-cow"],
-    note: "Avoid full hamstring stretch under load. Gentle isometrics and hip-dominant work first."
-  },
-  hip: {
-    label: "Hip Pain",
-    icon: "🦴",
-    avoidCategories: [],
-    avoidExercises: ["barbell-squat","lunge","trx-lunge","high-knees"],
-    prioritize: ["supine-figure-4","pigeon-pose","cat-cow","hip-flexor-stretch","glute-bridge","bird-dog"],
-    note: "Restore hip mobility first. Avoid impingement-prone positions."
-  },
-  ankle: {
-    label: "Ankle Sprain",
-    icon: "🦶",
-    avoidCategories: [],
-    avoidExercises: ["jump-rope","jumping-jacks","burpee","high-knees"],
-    prioritize: ["ankle-circles","glute-bridge","dead-bug","trx-row","seated-exercises"],
-    note: "Work on ankle mobility and stability. Avoid impact during initial recovery."
-  },
-  elbow: {
-    label: "Elbow / Tennis Elbow",
-    icon: "💪",
-    avoidCategories: [],
-    avoidExercises: ["bench-press","dip","barbell-row"],
-    prioritize: ["glute-bridge","squat-variations","cat-cow","hip-thrust","mobility-work"],
-    note: "Rest flexion-heavy movements. Focus on lower body and gentle mobility."
-  },
-  wrist: {
-    label: "Wrist Pain",
-    icon: "🤝",
-    avoidCategories: [],
-    avoidExercises: ["pushup","plank","bench-press","trx-pushup"],
-    prioritize: ["fist-pushup","trx-row","glute-bridge","hip-thrust","squat-variations"],
-    note: "Use neutral grip or fist position. Avoid wrist extension under load."
-  }
-};
-
-if (typeof module !== 'undefined') module.exports = { EXERCISES, MUSCLE_GROUPS, INJURY_PROFILES };
+if(typeof module!=='undefined')module.exports={EXERCISES,MUSCLE_GROUPS,INJURY_PROFILES,SPLITS};
