@@ -1,5 +1,3 @@
-# Forge
-Forge fitness app
 # FORGE — Fitness PWA
 
 A fully offline, privacy-first fitness PWA. No account, no server, no ads.
